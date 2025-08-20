@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Free AI Chatbot</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #eaeaea;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #chatbox {
+      width: 60%;
+      max-height: 70vh;
+      overflow-y: auto;
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+      margin-top: 20px;
+    }
+    .msg { margin: 8px 0; padding: 8px; border-radius: 8px; }
+    .user { background: #2d5eff; text-align: right; color: white; }
+    .bot { background: #333; text-align: left; }
+    #inputArea {
+      margin-top: 10px;
+      display: flex;
+      width: 60%;
+    }
+    #userInput {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    button {
+      margin-left: 8px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #sendBtn { background: #2d5eff; color: white; }
+    #resetBtn { background: #ff4444; color: white; }
+  </style>
+</head>
+<body>
+  <h2>🤖 Free AI Chatbot (Dark Mode)</h2>
+  <div id="chatbox"></div>
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Type your message...">
+    <button id="sendBtn">Send</button>
+    <button id="resetBtn">Reset Chat</button>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function appendMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("msg", sender);
+      msg.textContent = text;
+      chatbox.appendChild(msg);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    sendBtn.addEventListener("click", () => {
+      const message = input.value;
+      if (!message) return;
+      appendMessage(message, "user");
+      input.value = "";
+
+      fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        appendMessage(data.reply, "bot");
+      });
+    });
+
+    resetBtn.addEventListener("click", () => {
+      chatbox.innerHTML = "";
+    });
+
+    input.addEventListener("keypress", e => {
+      if (e.key === "Enter") sendBtn.click();
+    });
+  </script>
+</body>
+</html>
